@@ -1,19 +1,33 @@
-const mysql = require('mysql2/promise');
-//const dbConfig = require('./db.config.js');
+// Usamos el módulo 'pg' que es el cliente estándar de PostgreSQL para Node.js
+const { Pool } = require('pg');
 
-// Crear un pool de conexiones para manejar múltiples peticiones
-const pool = mysql.createPool({
-  // 💡 CLAVE: Usar variables de entorno de Render
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  // Mantener las opciones de pool
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+// Render proporciona una única variable de entorno llamada DATABASE_URL
+// que contiene todas las credenciales necesarias (usuario, password, host, puerto, nombre de la DB).
+// Esta es la forma más limpia de conectarse en Render.
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+    console.error("❌ Error: La variable de entorno DATABASE_URL no está definida.");
+    // Esto detendrá la aplicación si DATABASE_URL no existe (útil en Render)
+    throw new Error("DATABASE_URL no definida. La conexión a la DB falló.");
+}
+
+// Crear un pool de conexiones para PostgreSQL
+const pool = new Pool({
+  connectionString: connectionString,
+  // Opcional: Configuración para Render si usas SSL (recomendado)
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-console.log(`Conectado a la base de datos: ${dbConfig.DATABASE}`);
+pool.on('connect', () => {
+  console.log('✅ Pool de conexiones de PostgreSQL creado y conectado.');
+});
 
-module.exports = pool;
+// Exportar el pool y un método simplificado para ejecutar consultas
+module.exports = {
+  // Función 'query' simplificada para usar en server.js
+  query: (text, params) => pool.query(text, params),
+  // Nota: En PostgreSQL, la función que usaremos para insertar se llama 'query'
+};
