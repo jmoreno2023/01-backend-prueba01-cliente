@@ -3,7 +3,7 @@ const cors = require("cors");
 const db = require("./db"); // Importamos el pool de la DB
 
 const app = express();
-const PORT = 3306;
+const PORT = process.env.PORT || 3000;
 const API_URL = "/api/clientes";
 
 // Middleware
@@ -55,6 +55,6 @@ app.post(API_URL, async (req, res) => {
 
 // Iniciar el servidor
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor Node.js (Express) corriendo en http://localhost:${PORT}`);
-  console.log(`El endpoint para crear clientes es: http://localhost:${PORT}${API_URL}`);
+  console.log(`🚀 Servidor Node.js (Express) corriendo en el puerto ${PORT}`);
+  console.log(`El endpoint para crear clientes es: /api/clientes`);
 });

@@ -1,12 +1,14 @@
 const mysql = require('mysql2/promise');
-const dbConfig = require('./db.config.js');
+//const dbConfig = require('./db.config.js');
 
 // Crear un pool de conexiones para manejar múltiples peticiones
 const pool = mysql.createPool({
-  host: dbConfig.HOST,
-  user: dbConfig.USER,
-  password: dbConfig.PASSWORD,
-  database: dbConfig.DATABASE,
+  // 💡 CLAVE: Usar variables de entorno de Render
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  // Mantener las opciones de pool
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
